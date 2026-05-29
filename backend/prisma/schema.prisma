@@ -14,5 +14,59 @@ model User {
   role      String   @default("EMPLOYEE")
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt
+  createdWorkflowRequests WorkflowRequest[] @relation("CreatedWorkflowRequests")
+  approvals               WorkflowApproval[] @relation("UserApprovals")
+}
+
+model WorkflowTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  steps    WorkflowStep[]
+  requests WorkflowRequest[]
+}
+
+model WorkflowStep {
+  id                 String   @id @default(uuid())
+  workflowTemplateId String
+  stepOrder          Int
+  role               String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  workflowTemplate WorkflowTemplate @relation(fields: [workflowTemplateId], references: [id], onDelete: Cascade)
+
+  @@unique([workflowTemplateId, stepOrder])
+}
+
+model WorkflowRequest {
+  id                 String   @id @default(uuid())
+  workflowTemplateId String
+  createdById        String
+  status             String   @default("PENDING")
+  currentStep         Int     @default(1)
+  payload             Json?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  workflowTemplate WorkflowTemplate @relation(fields: [workflowTemplateId], references: [id])
+  createdBy        User             @relation("CreatedWorkflowRequests", fields: [createdById], references: [id])
+  approvals        WorkflowApproval[]
+}
+
+model WorkflowApproval {
+  id                String    @id @default(uuid())
+  workflowRequestId String
+  approvedById      String
+  decision          String
+  comments          String?
+  approvedAt        DateTime  @default(now())
+
+  workflowRequest WorkflowRequest @relation(fields: [workflowRequestId], references: [id], onDelete: Cascade)
+  approvedBy      User            @relation("UserApprovals", fields: [approvedById], references: [id])
 }

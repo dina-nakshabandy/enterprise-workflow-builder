@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-
+const workflowTemplateRoutes = require("./modules/workflow-template/routes/workflow-template.routes");
 const authRoutes = require("./modules/auth/routes/auth.routes");
 
 const app = express();
@@ -19,5 +19,5 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
-
+app.use("/api/workflow-templates",workflowTemplateRoutes);
 module.exports = app;
