@@ -1,3 +1,23 @@
+-- CreateEnum
+CREATE TYPE "WorkflowStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+
+-- CreateEnum
+CREATE TYPE "ApprovalDecision" AS ENUM ('APPROVED', 'REJECTED');
+
+-- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "fullName" TEXT NOT NULL,
+    "role" TEXT NOT NULL DEFAULT 'EMPLOYEE',
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateTable
 CREATE TABLE "WorkflowTemplate" (
     "id" TEXT NOT NULL,
@@ -27,7 +47,7 @@ CREATE TABLE "WorkflowRequest" (
     "id" TEXT NOT NULL,
     "workflowTemplateId" TEXT NOT NULL,
     "createdById" TEXT NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "status" "WorkflowStatus" NOT NULL DEFAULT 'PENDING',
     "currentStep" INTEGER NOT NULL DEFAULT 1,
     "payload" JSONB,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -41,12 +61,15 @@ CREATE TABLE "WorkflowApproval" (
     "id" TEXT NOT NULL,
     "workflowRequestId" TEXT NOT NULL,
     "approvedById" TEXT NOT NULL,
-    "decision" TEXT NOT NULL,
+    "decision" "ApprovalDecision" NOT NULL,
     "comments" TEXT,
     "approvedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "WorkflowApproval_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "WorkflowStep_workflowTemplateId_stepOrder_key" ON "WorkflowStep"("workflowTemplateId", "stepOrder");

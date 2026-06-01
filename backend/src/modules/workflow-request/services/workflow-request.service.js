@@ -126,7 +126,115 @@ const approveWorkflowRequest = async ({
   };
 };
 
+const getPendingApprovals = async (role) => {
+  const workflowRequests = await prisma.workflowRequest.findMany({
+    where: {
+      status: "PENDING",
+    },
+    include: {
+      createdBy: {
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+        },
+      },
+      workflowTemplate: {
+        include: {
+          steps: true,
+        },
+      },
+    },
+  });
+
+  const pendingApprovals = workflowRequests.filter(
+    (workflowRequest) => {
+      const currentStep =
+        workflowRequest.workflowTemplate.steps.find(
+          (step) =>
+            step.stepOrder === workflowRequest.currentStep
+        );
+
+      return currentStep?.role === role;
+    }
+  );
+  return pendingApprovals;
+};
+
+const rejectWorkflowRequest = async ({
+  workflowRequestId,
+  userId,
+  role,
+  comments,
+}) => {
+  const workflowRequest = await prisma.workflowRequest.findUnique({
+    where: { id: workflowRequestId },
+    include: {
+      workflowTemplate: {
+        include: {
+          steps: true,
+        },
+      },
+    },
+  });
+
+  if (!workflowRequest) {
+    const error = new Error("Workflow request not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (workflowRequest.status !== "PENDING") {
+    const error = new Error("Workflow request is already completed");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const currentStep = workflowRequest.workflowTemplate.steps.find(
+    (step) => step.stepOrder === workflowRequest.currentStep
+  );
+
+  if (!currentStep) {
+    const error = new Error("Current approval step not found");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (currentStep.role !== role) {
+    const error = new Error("You are not allowed to reject this step");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  const result = await prisma.$transaction(async (tx) => {
+    await tx.workflowApproval.create({
+      data: {
+        workflowRequestId,
+        approvedById: userId,
+        decision: "REJECTED",
+        comments,
+      },
+    });
+
+    const updatedRequest = await tx.workflowRequest.update({
+      where: { id: workflowRequestId },
+      data: {
+        status: "REJECTED",
+      },
+    });
+
+    return updatedRequest;
+  });
+
+  return {
+    message: "Workflow request rejected successfully",
+    workflowRequest: result,
+  };
+};
+
 module.exports = {
   createWorkflowRequest,
   approveWorkflowRequest,
+  getPendingApprovals,
+  rejectWorkflowRequest,
 };
