@@ -9,6 +9,8 @@ const {
   approveWorkflowRequest,
   getPendingApprovals,
   rejectWorkflowRequest,
+  getMyRequests,
+  getWorkflowRequestById
 } = require("../controllers/workflow-request.controller");
 
 const router = express.Router();
@@ -35,6 +37,18 @@ router.post(
   "/:id/reject",
   authenticate,
   rejectWorkflowRequest
+);
+
+router.get(
+  "/my-requests",
+  authenticate,
+  getMyRequests
+)
+
+router.get(
+  "/:id",
+  authenticate,
+  getWorkflowRequestById
 );
 
 module.exports = router;

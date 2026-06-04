@@ -147,17 +147,13 @@ const getPendingApprovals = async (role) => {
     },
   });
 
-  const pendingApprovals = workflowRequests.filter(
-    (workflowRequest) => {
-      const currentStep =
-        workflowRequest.workflowTemplate.steps.find(
-          (step) =>
-            step.stepOrder === workflowRequest.currentStep
-        );
+  const pendingApprovals = workflowRequests.filter((workflowRequest) => {
+    const currentStep = workflowRequest.workflowTemplate.steps.find(
+      (step) => step.stepOrder === workflowRequest.currentStep,
+    );
 
-      return currentStep?.role === role;
-    }
-  );
+    return currentStep?.role === role;
+  });
   return pendingApprovals;
 };
 
@@ -191,7 +187,7 @@ const rejectWorkflowRequest = async ({
   }
 
   const currentStep = workflowRequest.workflowTemplate.steps.find(
-    (step) => step.stepOrder === workflowRequest.currentStep
+    (step) => step.stepOrder === workflowRequest.currentStep,
   );
 
   if (!currentStep) {
@@ -232,9 +228,80 @@ const rejectWorkflowRequest = async ({
   };
 };
 
+const getMyRequests = async (userId) => {
+  return prisma.workflowRequest.findMany({
+    where: {
+      createdById: userId,
+    },
+    include: {
+      workflowTemplate: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
+
+const getWorkflowRequestById = async (workflowRequestId) => {
+  const workflowRequest = await prisma.workflowRequest.findUnique({
+    where: {
+      id: workflowRequestId,
+    },
+    include: {
+      createdBy: {
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+          role: true,
+        },
+      },
+      workflowTemplate: {
+        include: {
+          steps: {
+            orderBy: {
+              stepOrder: "asc",
+            },
+          },
+        },
+      },
+      approvals: {
+        include: {
+          approvedBy: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              role: true,
+            },
+          },
+        },
+        orderBy: {
+          approvedAt: "asc",
+        },
+      },
+    },
+  });
+
+  if (!workflowRequest) {
+    const error = new Error("Workflow request not found");
+    error.statusCode = 404;
+    throw error;
+  }
+  return workflowRequest;
+};
+
 module.exports = {
   createWorkflowRequest,
   approveWorkflowRequest,
   getPendingApprovals,
   rejectWorkflowRequest,
+  getMyRequests,
+  getWorkflowRequestById,
 };

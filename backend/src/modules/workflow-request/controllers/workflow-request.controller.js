@@ -2,8 +2,7 @@ const workflowRequestService = require("../services/workflow-request.service");
 
 const createWorkflowRequest = async (req, res) => {
   try {
-    const result =
-      await workflowRequestService.createWorkflowRequest({
+    const result = await workflowRequestService.createWorkflowRequest({
       ...req.body,
       userId: req.user.id,
     });
@@ -35,10 +34,9 @@ const approveWorkflowRequest = async (req, res) => {
 
 const getPendingApprovals = async (req, res) => {
   try {
-    const result =
-      await workflowRequestService.getPendingApprovals(
-        req.user.role
-      );
+    const result = await workflowRequestService.getPendingApprovals(
+      req.user.role,
+    );
 
     res.status(200).json(result);
   } catch (error) {
@@ -50,14 +48,39 @@ const getPendingApprovals = async (req, res) => {
 
 const rejectWorkflowRequest = async (req, res) => {
   try {
-    const result =
-      await workflowRequestService.rejectWorkflowRequest({
-        workflowRequestId: req.params.id,
-        userId: req.user.id,
-        role: req.user.role,
-        comments: req.body.comments,
-      });
+    const result = await workflowRequestService.rejectWorkflowRequest({
+      workflowRequestId: req.params.id,
+      userId: req.user.id,
+      role: req.user.role,
+      comments: req.body.comments,
+    });
 
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      message: error.message || "Internal server error",
+    });
+  }
+};
+
+const getMyRequests = async (req, res) => {
+  try {
+    const result = await workflowRequestService.getMyRequests(
+      req.user.id,
+    );
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      message: error.message || "Internal server error",
+    });
+  }
+};
+
+const getWorkflowRequestById = async (req, res) => {
+  try {
+    const result = await workflowRequestService.getWorkflowRequestById(
+      req.params.id,
+    );
     res.status(200).json(result);
   } catch (error) {
     res.status(error.statusCode || 500).json({
@@ -71,4 +94,6 @@ module.exports = {
   approveWorkflowRequest,
   getPendingApprovals,
   rejectWorkflowRequest,
+  getMyRequests,
+  getWorkflowRequestById,
 };
