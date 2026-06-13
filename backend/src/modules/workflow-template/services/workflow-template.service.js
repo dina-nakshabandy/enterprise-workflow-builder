@@ -1,10 +1,6 @@
 const prisma = require("../../../config/prisma");
 
-const createWorkflowTemplate = async ({
-  name,
-  description,
-  steps,
-}) => {
+const createWorkflowTemplate = async ({ name, description, steps }) => {
   const workflowTemplate = await prisma.$transaction(async (tx) => {
     const template = await tx.workflowTemplate.create({
       data: {
@@ -30,6 +26,25 @@ const createWorkflowTemplate = async ({
   };
 };
 
+const getWorkflowTemplates = async () => {
+  return prisma.workflowTemplate.findMany({
+    where: {
+      isActive: true,
+    },
+    include: {
+      steps: {
+        orderBy: {
+          stepOrder: "asc",
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
+
 module.exports = {
   createWorkflowTemplate,
+  getWorkflowTemplates,
 };
