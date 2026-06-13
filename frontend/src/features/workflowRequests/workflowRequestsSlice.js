@@ -10,10 +10,20 @@ export const fetchMyRequests = createAsyncThunk(
   },
 );
 
+export const fetchWorkflowRequestById = createAsyncThunk(
+  "workflowRequests/fetchWorkflowRequestById",
+  async (workflowRequestId) => {
+    const response = await api.get(`/workflow-requests/${workflowRequestId}`);
+
+    return response.data;
+  },
+);
+
 const workflowRequestsSlice = createSlice({
   name: "workflowRequests",
   initialState: {
     requests: [],
+    selectedRequest: null,
     loading: false,
     error: null,
   },
@@ -28,6 +38,18 @@ const workflowRequestsSlice = createSlice({
         state.requests = action.payload;
       })
       .addCase(fetchMyRequests.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchWorkflowRequestById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchWorkflowRequestById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedRequest = action.payload;
+      })
+      .addCase(fetchWorkflowRequestById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

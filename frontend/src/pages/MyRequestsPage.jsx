@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchMyRequests } from "../features/workflowRequests/workflowRequestsSlice";
+import { Link } from "react-router-dom";
 
 const MyRequestsPage = () => {
   const dispatch = useDispatch();
@@ -35,10 +36,10 @@ const MyRequestsPage = () => {
             padding: "10px",
           }}
         >
-          <h3>{request.workflowTemplate.name}</h3>
-
+          <Link to={`/workflow-requests/${request.id}`}>
+            <h3>{request.workflowTemplate.name}</h3>
+          </Link>
           <p>Status: {request.status}</p>
-
           <p>Created: {new Date(request.createdAt).toLocaleString()}</p>
         </div>
       ))}

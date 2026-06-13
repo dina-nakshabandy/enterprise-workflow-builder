@@ -5,6 +5,7 @@ import DashboardPage from "../pages/DashboardPage";
 import MyRequestsPage from "../pages/MyRequestsPage";
 import PendingApprovalsPage from "../pages/PendingApprovalsPage";
 import ProtectedRoute from "./ProtectedRoute";
+import WorkflowRequestDetailsPage from "../pages/WorkflowRequestDetailsPage";
 
 const AppRoutes = () => {
   return (
@@ -24,6 +25,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <MyRequestsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/workflow-requests/:id"
+          element={
+            <ProtectedRoute>
+              <WorkflowRequestDetailsPage />
             </ProtectedRoute>
           }
         />
