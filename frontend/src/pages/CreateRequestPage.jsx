@@ -12,14 +12,13 @@ import {
 
 import { fetchWorkflowTemplates } from "../features/workflowTemplates/workflowTemplatesSlice";
 import { createWorkflowRequest } from "../features/workflowRequests/workflowRequestsSlice";
+import Layout from "../layouts/Layout";
 
 const CreateRequestPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { templates } = useSelector(
-    (state) => state.workflowTemplates
-  );
+  const { templates } = useSelector((state) => state.workflowTemplates);
 
   const [workflowTemplateId, setWorkflowTemplateId] = useState("");
 
@@ -47,83 +46,76 @@ const CreateRequestPage = () => {
       createWorkflowRequest({
         workflowTemplateId,
         payload,
-      })
+      }),
     );
 
     navigate("/my-requests");
   };
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Paper sx={{ p: 4, maxWidth: 600 }}>
-        <Typography variant="h5" mb={3}>
-          Create Workflow Request
-        </Typography>
+    <Layout>
+      <Box sx={{ p: 4 }}>
+        <Paper sx={{ p: 4, maxWidth: 600 }}>
+          <Typography variant="h5" mb={3}>
+            Create Workflow Request
+          </Typography>
 
-        <form onSubmit={handleSubmit}>
-          <TextField
-            select
-            fullWidth
-            label="Workflow Template"
-            value={workflowTemplateId}
-            onChange={(e) =>
-              setWorkflowTemplateId(e.target.value)
-            }
-            margin="normal"
-          >
-            {templates.map((template) => (
-              <MenuItem
-                key={template.id}
-                value={template.id}
-              >
-                {template.name}
-              </MenuItem>
-            ))}
-          </TextField>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              select
+              fullWidth
+              label="Workflow Template"
+              value={workflowTemplateId}
+              onChange={(e) => setWorkflowTemplateId(e.target.value)}
+              margin="normal"
+            >
+              {templates.map((template) => (
+                <MenuItem key={template.id} value={template.id}>
+                  {template.name}
+                </MenuItem>
+              ))}
+            </TextField>
 
-          <TextField
-            fullWidth
-            label="Start Date"
-            name="startDate"
-            type="date"
-            value={payload.startDate}
-            onChange={handlePayloadChange}
-            margin="normal"
-            InputLabelProps={{ shrink: true }}
-          />
+            <TextField
+              fullWidth
+              label="Start Date"
+              name="startDate"
+              type="date"
+              value={payload.startDate}
+              onChange={handlePayloadChange}
+              margin="normal"
+              InputLabelProps={{ shrink: true }}
+            />
 
-          <TextField
-            fullWidth
-            label="End Date"
-            name="endDate"
-            type="date"
-            value={payload.endDate}
-            onChange={handlePayloadChange}
-            margin="normal"
-            InputLabelProps={{ shrink: true }}
-          />
+            <TextField
+              fullWidth
+              label="End Date"
+              name="endDate"
+              type="date"
+              value={payload.endDate}
+              onChange={handlePayloadChange}
+              margin="normal"
+              InputLabelProps={{ shrink: true }}
+            />
 
-          <TextField
-            fullWidth
-            multiline
-            minRows={3}
-            label="Reason"
-            name="reason"
-            value={payload.reason}
-            onChange={handlePayloadChange}
-            margin="normal"
-          />
+            <TextField
+              fullWidth
+              multiline
+              minRows={3}
+              label="Reason"
+              name="reason"
+              value={payload.reason}
+              onChange={handlePayloadChange}
+              margin="normal"
+            />
 
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{ mt: 3 }}
-          >
-            Submit Request
-          </Button>
-        </form>
-      </Paper>
-    </Box>
+            <Button type="submit" variant="contained" sx={{ mt: 3 }}>
+              Submit Request
+            </Button>
+          </form>
+        </Paper>
+      </Box>
+    </Layout>
   );
 };
 

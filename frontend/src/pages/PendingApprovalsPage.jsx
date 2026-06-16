@@ -7,6 +7,7 @@ import {
   rejectWorkflowRequest,
 } from "../features/workflowRequests/workflowRequestsSlice";
 import { Link } from "react-router-dom";
+import Layout from "../layouts/Layout";
 
 const PendingApprovalsPage = () => {
   const dispatch = useDispatch();
@@ -43,28 +44,30 @@ const PendingApprovalsPage = () => {
   };
 
   return (
-    <div>
-      <h1>Pending Approvals</h1>
-      {pendingApprovals.length === 0 && <p>No pending approvals found.</p>}
-      {pendingApprovals.map((request) => (
-        <div
-          key={request.id}
-          style={{
-            border: "1px solid gray",
-            margin: "10px",
-            padding: "10px",
-          }}
-        >
-          <Link to={`/workflow-requests/${request.id}`}>
-            <h3>{request.workflowTemplate.name}</h3>
-          </Link>
-          <p>Status: {request.status}</p>
-          <p>Created: {new Date(request.createdAt).toLocaleString()}</p>
-          <button onClick={() => handleApprove(request.id)}>Approve</button>
-          <button onClick={() => handleReject(request.id)}>Reject</button>
-        </div>
-      ))}
-    </div>
+    <Layout>
+      <div>
+        <h1>Pending Approvals</h1>
+        {pendingApprovals.length === 0 && <p>No pending approvals found.</p>}
+        {pendingApprovals.map((request) => (
+          <div
+            key={request.id}
+            style={{
+              border: "1px solid gray",
+              margin: "10px",
+              padding: "10px",
+            }}
+          >
+            <Link to={`/workflow-requests/${request.id}`}>
+              <h3>{request.workflowTemplate.name}</h3>
+            </Link>
+            <p>Status: {request.status}</p>
+            <p>Created: {new Date(request.createdAt).toLocaleString()}</p>
+            <button onClick={() => handleApprove(request.id)}>Approve</button>
+            <button onClick={() => handleReject(request.id)}>Reject</button>
+          </div>
+        ))}
+      </div>
+    </Layout>
   );
 };
 

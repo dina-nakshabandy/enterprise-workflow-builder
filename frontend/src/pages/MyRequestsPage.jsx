@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { fetchMyRequests } from "../features/workflowRequests/workflowRequestsSlice";
 import { Link } from "react-router-dom";
+import Layout from "../layouts/Layout";
 
 const MyRequestsPage = () => {
   const dispatch = useDispatch();
@@ -24,26 +25,28 @@ const MyRequestsPage = () => {
   }
 
   return (
-    <div>
-      <h1>My Requests</h1>
+    <Layout>
+      <div>
+        <h1>My Requests</h1>
 
-      {requests.map((request) => (
-        <div
-          key={request.id}
-          style={{
-            border: "1px solid gray",
-            margin: "10px",
-            padding: "10px",
-          }}
-        >
-          <Link to={`/workflow-requests/${request.id}`}>
-            <h3>{request.workflowTemplate.name}</h3>
-          </Link>
-          <p>Status: {request.status}</p>
-          <p>Created: {new Date(request.createdAt).toLocaleString()}</p>
-        </div>
-      ))}
-    </div>
+        {requests.map((request) => (
+          <div
+            key={request.id}
+            style={{
+              border: "1px solid gray",
+              margin: "10px",
+              padding: "10px",
+            }}
+          >
+            <Link to={`/workflow-requests/${request.id}`}>
+              <h3>{request.workflowTemplate.name}</h3>
+            </Link>
+            <p>Status: {request.status}</p>
+            <p>Created: {new Date(request.createdAt).toLocaleString()}</p>
+          </div>
+        ))}
+      </div>
+    </Layout>
   );
 };
 

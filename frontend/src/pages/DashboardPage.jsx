@@ -1,11 +1,9 @@
-import Header from "../components/Header";
-
+import Layout from "../layouts/Layout";
 const DashboardPage = () => {
   return (
-    <>
-      <Header />
+       <Layout>
       <h1>Dashboard Page</h1>
-    </>
+       </Layout>
   );
 };
 
