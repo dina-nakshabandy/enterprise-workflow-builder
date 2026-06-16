@@ -55,6 +55,18 @@ export const rejectWorkflowRequest = createAsyncThunk(
   },
 );
 
+export const createWorkflowRequest = createAsyncThunk(
+  "workflowRequests/createWorkflowRequest",
+  async ({ workflowTemplateId, payload }) => {
+    const response = await api.post("/workflow-requests", {
+      workflowTemplateId,
+      payload,
+    });
+
+    return response.data;
+  },
+);
+
 const workflowRequestsSlice = createSlice({
   name: "workflowRequests",
   initialState: {
@@ -99,6 +111,17 @@ const workflowRequestsSlice = createSlice({
         state.pendingApprovals = action.payload;
       })
       .addCase(fetchPendingApprovals.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(createWorkflowRequest.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createWorkflowRequest.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(createWorkflowRequest.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });
