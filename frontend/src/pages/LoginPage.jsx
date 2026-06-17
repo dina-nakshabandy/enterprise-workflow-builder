@@ -50,7 +50,7 @@ const LoginPage = () => {
     >
       <Paper sx={{ p: 4, width: 400 }}>
         <Typography variant="h5" mb={3}>
-          Enterprise Workflow Builder
+          Enterprise Workflow Builder 123
         </Typography>
 
         <form onSubmit={handleLogin}>

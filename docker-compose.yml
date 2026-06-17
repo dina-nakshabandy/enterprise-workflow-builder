@@ -16,5 +16,41 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  backend:
+    build:
+      context: ./backend
+
+    container_name: workflow-backend
+
+    restart: always
+
+    ports:
+      - "5001:5001"
+
+    environment:
+      PORT: 5001
+      DATABASE_URL: postgresql://admin:admin123@postgres:5432/workflow_builder
+      JWT_SECRET: my_super_secret_key
+
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./frontend
+
+    container_name: workflow-frontend
+
+    restart: always
+
+    ports:
+      - "5173:5173"
+
+    environment:
+      VITE_API_URL: http://localhost:5001/api
+
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
