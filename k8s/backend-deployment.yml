@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: backend
+  namespace: workflow-builder
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: backend
+
+  template:
+    metadata:
+      labels:
+        app: backend
+
+    spec:
+      containers:
+      - name: backend
+        image: enterprise-workflow-builder-backend:latest
+        imagePullPolicy: IfNotPresent
+
+        ports:
+          - containerPort: 5001
+
+        env:
+          - name: PORT
+            valueFrom:
+              configMapKeyRef:
+                name: backend-config
+                key: PORT
+
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+              name: backend-secret
+              key: DATABASE_URL
+
+          - name: JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+              name: backend-secret
+              key: JWT_SECRET
