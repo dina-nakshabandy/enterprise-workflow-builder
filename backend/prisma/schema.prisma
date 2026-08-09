@@ -6,6 +6,67 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id                      String             @id @default(uuid())
+  email                   String             @unique
+  password                String
+  fullName                String
+  role                    String             @default("EMPLOYEE")
+  isActive                Boolean            @default(true)
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+  approvals               WorkflowApproval[] @relation("UserApprovals")
+  createdWorkflowRequests WorkflowRequest[]  @relation("CreatedWorkflowRequests")
+}
+
+model WorkflowTemplate {
+  id          String            @id @default(uuid())
+  name        String
+  description String?
+  isActive    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  requests    WorkflowRequest[]
+  steps       WorkflowStep[]
+}
+
+model WorkflowStep {
+  id                 String           @id @default(uuid())
+  workflowTemplateId String
+  stepOrder          Int
+  role               String
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  workflowTemplate   WorkflowTemplate @relation(fields: [workflowTemplateId], references: [id], onDelete: Cascade)
+
+  @@unique([workflowTemplateId, stepOrder])
+}
+
+model WorkflowRequest {
+  id                 String             @id @default(uuid())
+  workflowTemplateId String
+  createdById        String
+  status             WorkflowStatus     @default(PENDING)
+  currentStep        Int                @default(1)
+  payload            Json?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  approvals          WorkflowApproval[]
+  createdBy          User               @relation("CreatedWorkflowRequests", fields: [createdById], references: [id])
+  workflowTemplate   WorkflowTemplate   @relation(fields: [workflowTemplateId], references: [id])
+}
+
+model WorkflowApproval {
+  id                String           @id @default(uuid())
+  workflowRequestId String
+  approvedById      String
+  decision          ApprovalDecision
+  comments          String?
+  approvedAt        DateTime         @default(now())
+  approvedBy        User             @relation("UserApprovals", fields: [approvedById], references: [id])
+  workflowRequest   WorkflowRequest  @relation(fields: [workflowRequestId], references: [id], onDelete: Cascade)
+}
+
 enum WorkflowStatus {
   PENDING
   APPROVED
@@ -15,69 +76,4 @@ enum WorkflowStatus {
 enum ApprovalDecision {
   APPROVED
   REJECTED
-}
-
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  fullName  String
-  role      String   @default("EMPLOYEE")
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdWorkflowRequests WorkflowRequest[] @relation("CreatedWorkflowRequests")
-  approvals               WorkflowApproval[] @relation("UserApprovals")
-}
-
-model WorkflowTemplate {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  steps    WorkflowStep[]
-  requests WorkflowRequest[]
-}
-
-model WorkflowStep {
-  id                 String   @id @default(uuid())
-  workflowTemplateId String
-  stepOrder          Int
-  role               String
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  workflowTemplate WorkflowTemplate @relation(fields: [workflowTemplateId], references: [id], onDelete: Cascade)
-
-  @@unique([workflowTemplateId, stepOrder])
-}
-
-model WorkflowRequest {
-  id                 String   @id @default(uuid())
-  workflowTemplateId String
-  createdById        String
-  status              WorkflowStatus @default(PENDING)
-  currentStep         Int     @default(1)
-  payload             Json?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  workflowTemplate WorkflowTemplate @relation(fields: [workflowTemplateId], references: [id])
-  createdBy        User             @relation("CreatedWorkflowRequests", fields: [createdById], references: [id])
-  approvals        WorkflowApproval[]
-}
-
-model WorkflowApproval {
-  id                String    @id @default(uuid())
-  workflowRequestId String
-  approvedById      String
-  decision          ApprovalDecision
-  comments          String?
-  approvedAt        DateTime  @default(now())
-
-  workflowRequest WorkflowRequest @relation(fields: [workflowRequestId], references: [id], onDelete: Cascade)
-  approvedBy      User            @relation("UserApprovals", fields: [approvedById], references: [id])
 }
